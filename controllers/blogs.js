@@ -4,7 +4,7 @@ const Blog = require('../models/blog');
 blogRouter.get('/', (req, res) => {
   Blog.find({})
     .then((blogs) => {
-      res.json(blogs.toJSON());
+      res.json(blogs);
     });
 });
 

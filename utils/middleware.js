@@ -2,11 +2,12 @@
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
 const logger = require('./logger');
 
-const requestLogger = (req, _res, _next) => {
+const requestLogger = (req, _res, next) => {
   logger.info('Method:', req.method);
   logger.info('Path  :', req.path);
   logger.info('Body  :', req.body);
   logger.info('---');
+  next();
 };
 
 const unknownEndpoint = (_req, res) => {
