@@ -1,39 +1,41 @@
 const blogRouter = require('express').Router();
 const Blog = require('../models/blog');
 
-blogRouter.get('/', (req, res) => {
-  Blog.find({})
-    .then((blogs) => {
-      res.json(blogs);
-    });
+blogRouter.get('/', async (req, res) => {
+  const dbRes = await Blog.find({});
+  res.json(dbRes);
 });
 
-blogRouter.get('/:id', (req, res, next) => {
-  Blog.findById(req.params.id)
-    .then((blog) => {
-      if (blog) {
-        res.json(blog.toJSON());
-      } else {
-        res.status(404).end();
-      }
-    }).catch((err) => {
-      next(err);
-    });
+blogRouter.get('/:id', async (req, res, next) => {
+  try {
+    const singleBlog = await Blog.findById(req.params.id);
+    if (singleBlog) {
+      res.json(singleBlog);
+    } else {
+      res.status(404).end();
+    }
+  } catch (e) {
+    next(e);
+  }
 });
 
-blogRouter.post('/', (req, res, next) => {
+blogRouter.post('/', async (req, res, next) => {
   const blog = new Blog({
     author: req.body.author,
     title: req.body.title,
     url: req.body.url,
     likes: 0,
   });
-
-  blog.save().then((savedBlog) => {
-    res.json(savedBlog.toJSON());
-  }).catch((err) => {
-    next(err);
-  });
+  try {
+    const savedBlog = await blog.save();
+    if (savedBlog) {
+      res.json(savedBlog.toJSON());
+    } else {
+      res.status(400).end();
+    }
+  } catch (e) {
+    next(e);
+  }
 });
 
 module.exports = blogRouter;
