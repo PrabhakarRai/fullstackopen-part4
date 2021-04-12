@@ -1,7 +1,19 @@
 GET http://localhost:3001/api/blogs/
 
 ###
-GET http://localhost:3001/api/blogs/607079a82aeb940349c9f951
+GET http://localhost:3001/api/blogs/60746916cfb27600fa9548be
+
+###
+DELETE http://localhost:3001/api/blogs/60746a2000d2f80140047cb6
+
+###
+PUT http://localhost:3001/api/blogs/60746916cfb27600fa9548be
+Content-Type: application/json
+
+{
+  "likes": 10
+}
+
 
 ###
 POST http://localhost:3001/api/blogs/
@@ -10,7 +22,7 @@ Content-Type: application/json
 {
   "author": "Prabhakar Rai",
   "title": "Typing and Click simulation using JavaScript",
-  "url": "https://www.theprabhakar.in/2020/06/typing-and-click-simulation.html"
+  "url": "https://www.theprabhakar.in/2020/06/typing-and-click-simulation-new.html"
 }
 
 ###
