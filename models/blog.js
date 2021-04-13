@@ -29,6 +29,10 @@ const blogSchema = new mongoose.Schema({
     required: true,
     min: [0, 'Why so much hate?'],
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
 });
 
 blogSchema.plugin(uniqueValidator);
