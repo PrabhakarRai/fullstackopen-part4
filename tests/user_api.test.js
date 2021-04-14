@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const supertest = require('supertest');
 const User = require('../models/user');
@@ -8,9 +8,9 @@ const app = require('../app');
 const api = supertest(app);
 
 const usersInDb = async () => {
-  const users = await User.find({})
-  return users.map(u => u.toJSON())
-}
+  const users = await User.find({});
+  return users.map((u) => u.toJSON());
+};
 
 describe('when there is initially one user in DB', () => {
   beforeEach(async () => {
@@ -36,11 +36,11 @@ describe('when there is initially one user in DB', () => {
       .set('Content-Type', 'application/json')
       .expect(200)
       .expect('Content-Type', /application\/json/);
-    
-    const usersAtEnd = await usersInDb();
-    expect(usersAtEnd).toHaveLength(usersAtStart + 1);
 
-    const usernames = usersAtEnd.map(u => u.username);
+    const usersAtEnd = await usersInDb();
+    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1);
+
+    const usernames = usersAtEnd.map((u) => u.username);
     expect(usernames).toContain(newUser.username);
   });
   test('creation fails if user exists', async () => {
@@ -56,10 +56,13 @@ describe('when there is initially one user in DB', () => {
       .set('Content-Type', 'application/json')
       .expect(400)
       .expect('Content-Type', /application\/json/);
-    
+
     expect(result.body.error).toContain('`username` to be unique');
 
     const usersAtEnd = await usersInDb();
-    expect(usersAtEnd).toHaveLength(usersAtStart);
+    expect(usersAtEnd).toHaveLength(usersAtStart.length);
+  });
+  afterAll(async () => {
+    await mongoose.connection.close();
   });
 });

@@ -32,7 +32,7 @@ const initialBlogs = [{
 }];
 
 beforeAll(async () => {
-  await api.get('/api/blogs');
+  await api.get('/api/blogs/');
 });
 
 beforeEach(async () => {

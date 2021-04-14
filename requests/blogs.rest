@@ -1,13 +1,13 @@
 GET http://localhost:3001/api/blogs/
 
 ###
-GET http://localhost:3001/api/blogs/60746916cfb27600fa9548be
+GET http://localhost:3001/api/blogs/607679c8346a8102f20364c4
 
 ###
-DELETE http://localhost:3001/api/blogs/60746a2000d2f80140047cb6
+DELETE http://localhost:3001/api/blogs/6076785865eb9e02751d03fa
 
 ###
-PUT http://localhost:3001/api/blogs/60746916cfb27600fa9548be
+PUT http://localhost:3001/api/blogs/607679c8346a8102f20364c4
 Content-Type: application/json
 
 {
