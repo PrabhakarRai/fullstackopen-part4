@@ -9,7 +9,6 @@ userRouter.get('/', async (req, res) => {
       title: 1,
       author: 1,
       url: 1,
-      likes: 1,
     },
   );
   res.json(dbRes);
@@ -18,7 +17,7 @@ userRouter.get('/', async (req, res) => {
 userRouter.post('/', async (req, res, next) => {
   const saltRound = 10;
   if (!req.body.password || !req.body.username) {
-    res.status(400).send({ error: 'username & password are required' });
+    res.status(400).send({ error: '`username` & `password` are required' });
   } else if (req.body.password.length < 3) {
     res.status(400).send({ error: '`password` must be 3 characters long' });
   } else {

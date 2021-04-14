@@ -63,11 +63,12 @@ blogRouter.post('/', async (req, res, next) => {
     user: firstUser._id,
   });
   try {
-    const savedBlog = await blog.save().populate('user', { username: 1, name: 1 });
+    const savedBlog = await blog.save();
+    const popBlog = await Blog.populate(savedBlog, { path: 'user', select: 'username name'});
     if (savedBlog) {
       firstUser.blogs = firstUser.blogs.concat(savedBlog._id);
       await firstUser.save();
-      res.json(savedBlog.toJSON());
+      res.json(popBlog);
     } else {
       res.status(400).end();
     }

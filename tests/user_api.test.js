@@ -62,6 +62,61 @@ describe('when there is initially one user in DB', () => {
     const usersAtEnd = await usersInDb();
     expect(usersAtEnd).toHaveLength(usersAtStart.length);
   });
+  test('creation fails if password is not provided', async () => {
+    const usersAtStart = await usersInDb();
+    const newUser = {
+      username: 'newuser',
+      name: 'Prabhakar Rai',
+    };
+    const result = await api
+      .post('/api/users/')
+      .send(newUser)
+      .set('Content-Type', 'application/json')
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+
+    expect(result.body.error).toContain('`username` & `password` are required');
+
+    const usersAtEnd = await usersInDb();
+    expect(usersAtEnd).toHaveLength(usersAtStart.length);
+  });
+  test('creation fails if password shorter than 3 chars', async () => {
+    const usersAtStart = await usersInDb();
+    const newUser = {
+      username: 'newuser',
+      password: 'tn',
+    };
+    const result = await api
+      .post('/api/users/')
+      .send(newUser)
+      .set('Content-Type', 'application/json')
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+
+    expect(result.body.error).toContain('`password` must be 3 characters long');
+
+    const usersAtEnd = await usersInDb();
+    expect(usersAtEnd).toHaveLength(usersAtStart.length);
+  });
+  test('creation fails if username shorter than 3 chars', async () => {
+    const usersAtStart = await usersInDb();
+    const newUser = {
+      username: 'tn',
+      password: 'password',
+      name: 'Robot',
+    };
+    const result = await api
+      .post('/api/users/')
+      .send(newUser)
+      .set('Content-Type', 'application/json')
+      .expect(400)
+      .expect('Content-Type', /application\/json/);
+
+    expect(result.body.error).toContain('shorter than the minimum allowed length');
+
+    const usersAtEnd = await usersInDb();
+    expect(usersAtEnd).toHaveLength(usersAtStart.length);
+  });
   afterAll(async () => {
     await mongoose.connection.close();
   });

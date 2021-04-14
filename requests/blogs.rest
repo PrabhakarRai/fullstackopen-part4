@@ -1,13 +1,13 @@
 GET http://localhost:3001/api/blogs/
 
 ###
-GET http://localhost:3001/api/blogs/607679c8346a8102f20364c4
+GET http://localhost:3001/api/blogs/6076814b54814b05027651e5
 
 ###
-DELETE http://localhost:3001/api/blogs/6076785865eb9e02751d03fa
+DELETE http://localhost:3001/api/blogs/6076821d54814c05027651e8
 
 ###
-PUT http://localhost:3001/api/blogs/607679c8346a8102f20364c4
+PUT http://localhost:3001/api/blogs/6076814b54814c05027661e5
 Content-Type: application/json
 
 {
@@ -20,9 +20,25 @@ POST http://localhost:3001/api/blogs/
 Content-Type: application/json
 
 {
+  "author": "Prabhakar Rai"
+}
+
+###
+POST http://localhost:3001/api/blogs/
+Content-Type: application/json
+
+{
+  "url": "https://www.theprabhakar.in/2020/06/some.html"
+}
+
+###
+POST http://localhost:3001/api/blogs/
+Content-Type: application/json
+
+{
   "author": "Prabhakar Rai",
-  "title": "Typing and Click simulation using JavaScript",
-  "url": "https://www.theprabhakar.in/2020/06/typing-and-click-simulation-new.html"
+  "title": "Some other other blog by me",
+  "url": "https://www.thepdfdar.in/2819/02/some.html"
 }
 
 ###
