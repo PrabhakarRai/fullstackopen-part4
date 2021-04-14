@@ -2,6 +2,7 @@
 const blogRouter = require('express').Router();
 const Blog = require('../models/blog');
 const User = require('../models/user');
+const middleware = require('../utils/middleware');
 
 blogRouter.get('/', async (req, res) => {
   const dbRes = await Blog.find({}).populate('user', { username: 1, name: 1 });
@@ -22,11 +23,19 @@ blogRouter.get('/:id', async (req, res, next) => {
   }
 });
 
-blogRouter.delete('/:id', async (req, res, next) => {
+blogRouter.delete('/:id',
+  middleware.tokenExtractor,
+  middleware.userExtractor,
+  async (req, res, next) => {
   try {
-    const deleted = await Blog.findByIdAndDelete(req.params.id);
-    if (deleted) {
-      res.status(204).end();
+    const blog = await Blog.findById(req.params.id);
+    if (blog) {
+      if (blog.user.toString() === req.user._id.toString()) {
+        await Blog.findByIdAndDelete(req.params.id);
+        res.status(204).end();
+      } else {
+        res.status(401).end();
+      }
     } else {
       res.status(404).end();
     }
@@ -53,21 +62,23 @@ blogRouter.put('/:id', async (req, res, next) => {
   }
 });
 
-blogRouter.post('/', async (req, res, next) => {
-  const firstUser = await User.findOne({});
+blogRouter.post('/',
+  middleware.tokenExtractor,
+  middleware.userExtractor,
+  async (req, res, next) => {
   const blog = new Blog({
     author: req.body.author,
     title: req.body.title,
     url: req.body.url,
     likes: 0,
-    user: firstUser._id,
+    user: req.user._id,
   });
   try {
     const savedBlog = await blog.save();
-    const popBlog = await Blog.populate(savedBlog, { path: 'user', select: 'username name'});
-    if (savedBlog) {
-      firstUser.blogs = firstUser.blogs.concat(savedBlog._id);
-      await firstUser.save();
+    const popBlog = await Blog.populate(savedBlog, { path: 'user', select: 'username name' });
+    if (popBlog) {
+      req.user.blogs = req.user.blogs.concat(popBlog._id);
+      await req.user.save();
       res.json(popBlog);
     } else {
       res.status(400).end();

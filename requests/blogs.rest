@@ -1,10 +1,11 @@
 GET http://localhost:3001/api/blogs/
 
 ###
-GET http://localhost:3001/api/blogs/6076814b54814b05027651e5
+GET http://localhost:3001/api/blogs/6076d762f170530190724b6c
 
 ###
-DELETE http://localhost:3001/api/blogs/6076821d54814c05027651e8
+DELETE http://localhost:3001/api/blogs/6076d762f170530190724b6c
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYwNzZkMTdiYjlkYTA2MDMzZTg1YzYyZCIsImlhdCI6MTYxODQwMTEzOH0.LxLLem-25bOQj9n2s0IARkA70jD8AED_e94r_7Kr_ZQ
 
 ###
 PUT http://localhost:3001/api/blogs/6076814b54814c05027661e5
@@ -14,9 +15,9 @@ Content-Type: application/json
   "likes": 10
 }
 
-
 ###
 POST http://localhost:3001/api/blogs/
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpZCI6IjYwNzZjNWNkNGQ2ZGFkMDFlMDcwMjRmNiIsImlhdCI6MTYxODM5OTU3MH0.gHtyne56O9py86ATzSUqJs3Wlui0lxTDtcgCXniBchA
 Content-Type: application/json
 
 {
@@ -34,11 +35,12 @@ Content-Type: application/json
 ###
 POST http://localhost:3001/api/blogs/
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpZCI6IjYwNzZjNWNkNGQ2ZGFkMDFlMDcwMjRmNiIsImlhdCI6MTYxODQwMDY1N30.9VePhSCfTW_ne4-NzCccadiGXxi3pPU1GjYHZsecnIs
 
 {
   "author": "Prabhakar Rai",
-  "title": "Some other other blog by me",
-  "url": "https://www.thepdfdar.in/2819/02/some.html"
+  "title": "Some blog by me",
+  "url": "https://www.theprabhakar.in/2021/02/blog.html"
 }
 
 ###

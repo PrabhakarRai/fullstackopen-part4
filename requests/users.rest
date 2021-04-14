@@ -6,6 +6,6 @@ Content-Type: application/json
 
 {
   "username": "root",
-  "name": "superuser",
-  "password": "some$%^&##"
+  "name": "root user",
+  "password": "root"
 }
