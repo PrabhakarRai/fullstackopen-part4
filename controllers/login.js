@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle */
+/* eslint-disable consistent-return */
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const loginRouter = require('express').Router();
@@ -23,7 +24,7 @@ loginRouter.post('/', async (req, res) => {
     id: user._id.toString(), // get back to the use of toString method
   };
   const token = jwt.sign(tokenBody, config.SECRET);
-  return res.status(200).send({ token, username: user.username, name: user.name });
+  res.status(200).send({ token, username: user.username, name: user.name });
 });
 
 module.exports = loginRouter;

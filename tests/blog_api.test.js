@@ -1,7 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const supertest = require('supertest');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const app = require('../app');
 
 const api = supertest(app);
@@ -26,6 +28,14 @@ const initialBlogs = [{
 }];
 
 beforeAll(async () => {
+  await User.deleteMany({});
+  const passwordHash = await bcrypt.hash('root', 10);
+  const user = new User({
+    username: 'root',
+    name: 'root',
+    passwordHash,
+  });
+  await user.save();
   await api.get('/api/blogs/');
 });
 
@@ -62,7 +72,23 @@ describe('retriving blogs using GET /api/blogs/', () => {
 });
 
 describe('creating blog entry using POST /api/blogs/', () => {
-  test('POST req on /api/blogs/ creates a new blog', async () => {
+  test('POST req on /api/blogs/ fails without auth', async () => {
+    const newBlog = {
+      title: 'New Blog to be added',
+      author: 'Prabhakar Rai',
+      url: 'https://www.theprabhakar.in/some-new-post.html',
+      likes: 100,
+    };
+    await api.post('/api/blogs/')
+      .send(newBlog)
+      .set('Content-Type', 'application/json')
+      .expect(401);
+  });
+  test('POST req on /api/blogs/ with auth creates a new blog', async () => {
+    const login = await api.post('/api/login/')
+      .send({ username: 'root', password: 'root' })
+      .set('Content-Type', 'application/json');
+    const bearerToken = `bearer ${login.body.token}`;
     const newBlog = {
       title: 'New Blog to be added',
       author: 'Prabhakar Rai',
@@ -72,25 +98,53 @@ describe('creating blog entry using POST /api/blogs/', () => {
     const oldBlogs = await api.get('/api/blogs/');
     await api.post('/api/blogs/')
       .send(newBlog)
-      .set('Content-Type', 'application/json');
+      .set('Content-Type', 'application/json')
+      .set('Authorization', bearerToken)
+      .expect(200);
     const updatedBlogs = await api.get('/api/blogs/');
     expect(updatedBlogs.body).toHaveLength(oldBlogs.body.length + 1);
   });
-  test('likes are zero (0) for newly created blogs', async () => {
+  test('POST /api/blogs/ with auth adds correct user info to the data', async () => {
+    const login = await api.post('/api/login/')
+      .send({ username: 'root', password: 'root' })
+      .set('Content-Type', 'application/json');
+    const bearerToken = `bearer ${login.body.token}`;
     const newBlog = {
       title: 'New Blog to be added',
       author: 'Prabhakar Rai',
-      url: 'https://www.theprabhakar.in/some-blog.html',
+      url: 'https://www.theprabhakar.in/some-new-post.html',
       likes: 100,
     };
-    const newBlogCreated = await api.post('/api/blogs/')
+    const result = await api.post('/api/blogs/')
       .send(newBlog)
       .set('Content-Type', 'application/json')
-      .expect('Content-Type', /json/)
+      .set('Authorization', bearerToken)
       .expect(200);
-    expect(newBlogCreated.body.likes).toBe(0);
+    expect(result.body.user.username).toBe('root');
+  });
+  test('likes are zero (0) for newly created blogs', async () => {
+    const login = await api.post('/api/login/')
+      .send({ username: 'root', password: 'root' })
+      .set('Content-Type', 'application/json');
+    const bearerToken = `bearer ${login.body.token}`;
+    const newBlog = {
+      title: 'New Blog to be added',
+      author: 'Prabhakar Rai',
+      url: 'https://www.theprabhakar.in/some-new-post.html',
+      likes: 100,
+    };
+    const result = await api.post('/api/blogs/')
+      .send(newBlog)
+      .set('Content-Type', 'application/json')
+      .set('Authorization', bearerToken)
+      .expect(200);
+    expect(result.body.likes).toBe(0);
   });
   test('POST with incomplete data is blocked at /api/blogs/', async () => {
+    const login = await api.post('/api/login/')
+      .send({ username: 'root', password: 'root' })
+      .set('Content-Type', 'application/json');
+    const bearerToken = `bearer ${login.body.token}`;
     const badBlog = {
       url: 'https://www.theprabhakar.in/',
       likes: 100,
@@ -98,30 +152,60 @@ describe('creating blog entry using POST /api/blogs/', () => {
     await api.post('/api/blogs/')
       .send(badBlog)
       .set('Content-Type', 'application/json')
+      .set('Authorization', bearerToken)
       .expect('Content-Length', /0/)
       .expect(400);
   });
 });
 
 describe('deleting a blog using its id DELETE /api/blogs/:id', () => {
+  test('unauthorized requests are rejected on deleted', async () => {
+    await api.delete('/api/blogs/someid')
+      .expect(401);
+  });
   test('blog is successfully deleted', async () => {
-    const blogs = await api.get('/api/blogs/');
-    await api.delete(`/api/blogs/${blogs.body[0].id}`)
+    const login = await api.post('/api/login/')
+      .send({ username: 'root', password: 'root' })
+      .set('Content-Type', 'application/json');
+    const bearerToken = `bearer ${login.body.token}`;
+    const newBlog = {
+      title: 'New Blog to be added',
+      author: 'Prabhakar Rai',
+      url: 'https://www.theprabhakar.in/some-new-delete.html',
+      likes: 100,
+    };
+    const result = await api.post('/api/blogs/')
+      .send(newBlog)
+      .set('Content-Type', 'application/json')
+      .set('Authorization', bearerToken)
+      .expect(200);
+    await api.delete(`/api/blogs/${result.body.id}`)
+      .set('Authorization', bearerToken)
       .expect(204);
   });
   test('non-existing blogs returned error when trying to delete', async () => {
-    const blogs = await api.get('/api/blogs/');
-    // first successful delete
-    await api.delete(`/api/blogs/${blogs.body[0].id}`)
+    const login = await api.post('/api/login/')
+      .send({ username: 'root', password: 'root' })
+      .set('Content-Type', 'application/json');
+    const bearerToken = `bearer ${login.body.token}`;
+    const newBlog = {
+      title: 'New Blog to be added',
+      author: 'Prabhakar Rai',
+      url: 'https://www.theprabhakar.in/some-new-post.html',
+      likes: 100,
+    };
+    const result = await api.post('/api/blogs/')
+      .send(newBlog)
+      .set('Content-Type', 'application/json')
+      .set('Authorization', bearerToken)
+      .expect(200);
+    await api.delete(`/api/blogs/${result.body.id}`)
+      .set('Authorization', bearerToken)
       .expect(204);
     // now the blog no longer exists so 404 expected
-    await api.delete(`/api/blogs/${blogs.body[0].id}`)
+    await api.delete(`/api/blogs/${result.body.id}`)
+      .set('Authorization', bearerToken)
       .expect(404);
-  });
-  test('bad id for delete request returns error', async () => {
-    const badBlogId = 'some-crap';
-    await api.delete(`/api/blogs/${badBlogId}`)
-      .expect(400);
   });
 });
 
@@ -137,20 +221,6 @@ describe('updating likes using PUT /api/blogs/:id', () => {
       .expect(200);
     expect(updatedBlogWithNewLikes.body.likes).toBe(newBlogLikes.likes);
   });
-  test('non-existing blogs returned error when trying to update likes', async () => {
-    const blogs = await api.get('/api/blogs/');
-    const newBlogLikes = {
-      likes: 10,
-    };
-    // first successful delete
-    await api.delete(`/api/blogs/${blogs.body[0].id}`)
-      .expect(204);
-    // now the blog no longer exists so 404 expected
-    await api.put(`/api/blogs/${blogs.body[0].id}`)
-      .send(newBlogLikes)
-      .set('Content-Type', 'application/json')
-      .expect(404);
-  });
   test('bad id for put request returns error', async () => {
     const newBlogLikes = {
       likes: 10,
@@ -163,6 +233,7 @@ describe('updating likes using PUT /api/blogs/:id', () => {
   });
 });
 
-afterAll(() => {
+afterAll(async () => {
+  await User.deleteMany({});
   mongoose.connection.close();
 });
