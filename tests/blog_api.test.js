@@ -36,7 +36,6 @@ beforeAll(async () => {
     passwordHash,
   });
   await user.save();
-  await api.get('/api/blogs/');
 });
 
 beforeEach(async () => {
